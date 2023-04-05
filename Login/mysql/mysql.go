@@ -4,26 +4,28 @@ import (
 	"awesomeProject/Login/Dao"
 	"awesomeProject/Login/Entity"
 	"context"
-	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jinzhu/gorm"
 	"net/http"
 )
 
 var DB = Dao.MysqlRepository{}
-var err error
 
 func init() {
-	DB.Db, err = sql.Open("mysql", "root:123456@tcp(localhost:3306)/dbsearch")
+	var err error
+	DB.Db, err = gorm.Open("mysql", "root:123456@tcp(localhost:3306)/dbsearch?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
-		fmt.Errorf("error:%s", err)
+		err = fmt.Errorf("error:%s", err)
+		fmt.Println(err.Error())
 	} else {
 		fmt.Println("连接成功")
 	}
-
-	err = DB.Db.Ping()
+	DB.Db.AutoMigrate(&Dao.User{})
+	err = DB.Db.DB().Ping()
 	if err != nil {
-		fmt.Errorf("error:%s", err)
+		err = fmt.Errorf("error:%s", err)
+		fmt.Println(err.Error())
 	}
 }
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -32,12 +34,17 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		password := r.FormValue("password")
 
 		correct, err := Entity.ValidateUser(accountID, password, &DB)
+		if err != nil {
+
+		}
 
 		if correct == true {
 			fmt.Println("用户密码正确")
-			token, err := Entity.GenerateToken(accountID)
-			if err != nil {
-				fmt.Errorf("错误信息:%s", err)
+			token, err1 := Entity.GenerateToken(accountID)
+			if err1 != nil {
+
+				err1 = fmt.Errorf("错误信息:%s", err1)
+				fmt.Println(err1.Error())
 			}
 			w.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token))
 
@@ -61,7 +68,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			http.Error(w, "expire the token", http.StatusUnauthorized)
 		}
 		fmt.Println("token正确")
-		w.Write([]byte(fmt.Sprintf("Welcome %s!", claims.Username)))
+		_, _ = w.Write([]byte(fmt.Sprintf("Welcome %s!", claims.Username)))
 
 		ctx := context.WithValue(r.Context(), "claims", claims)
 

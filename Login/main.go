@@ -13,5 +13,5 @@ func main() {
 
 	http.Handle("/hello", mysql.AuthMiddleware(http.HandlerFunc(mysql.Login)))
 	fmt.Println("Server listening on port 8080...")
-	http.ListenAndServe("127.0.0.1:8080", nil)
+	_ = http.ListenAndServe("127.0.0.1:8080", nil)
 }

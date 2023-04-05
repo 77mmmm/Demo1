@@ -1,9 +1,15 @@
 package Dao
 
 import (
-	"database/sql"
 	"fmt"
+	"github.com/jinzhu/gorm"
 )
+
+type User struct {
+	Username string
+	Password string
+	Email    string
+}
 
 type UserRepository interface {
 	GetUser(username string) (string, error)
@@ -14,20 +20,18 @@ type UserRepository interface {
 	client *redis.Client
 }*/
 type MysqlRepository struct {
-	Db *sql.DB
+	Db *gorm.DB
 }
 
 func (m *MysqlRepository) GetUser(username string) (string, error) {
-
+	var user User
 	var password string
-	err := m.Db.QueryRow("SELECT password FROM mydb where username=?", username).Scan(&password)
+	err := m.Db.Table("mydb").Where("username=?", username).First(&user).Error
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return "", nil
-		} else {
-			return "", fmt.Errorf("error querying MySQL: %s", err)
-		}
+		return "", fmt.Errorf("error querying MySQL: %s", err)
+
 	}
+	password = user.Password
 	return password, nil
 }
 
