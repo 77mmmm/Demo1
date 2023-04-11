@@ -3,6 +3,7 @@ package main
 import (
 	"awesomeProject/handler"
 	"bytes"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -19,6 +20,7 @@ func TestMyHandler(t *testing.T) {
 
 	req := httptest.NewRequest("POST", "/my-endpoint", body)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	fmt.Println("hello")
 
 	rr := httptest.NewRecorder()
 	var wg sync.WaitGroup
