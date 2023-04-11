@@ -24,11 +24,17 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 	if Bool == false {
 		http.Error(w, "注册失败", http.StatusBadRequest)
+<<<<<<< HEAD
 		fmt.Println("注册失败")
 
 	} else {
 		fmt.Println("注册成功")
 		fmt.Println("name:", username, "pass:", password, "email", email)
+=======
+
+	} else {
+		fmt.Println("注册成功")
+>>>>>>> 6b8199d2ebeee8145588c5208812ddf694266766
 	}
 
 }
