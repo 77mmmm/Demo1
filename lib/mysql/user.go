@@ -1,8 +1,10 @@
 package mysql
 
 import (
-	"awesomeProject/model"
 	"fmt"
+
+	"awesomeProject/model"
+
 	"github.com/jinzhu/gorm"
 )
 
@@ -32,52 +34,31 @@ func (m *UserRepository) GetUser(username string) (string, error) {
 	return password, nil
 }
 
-func (m *UserRepository) SelectUser(username string, password string, email string) (bool, error) {
-	var count1 int
-	var count2 int
-
+func (m *UserRepository) SelectUser(username string, password string, email string) error {
 	tx := m.db.Begin()
-	err := tx.Table("user").Set("gorm:query_option", "FOR UPDATE ").Where("username=?", username).Count(&count1).Error
-	err1 := tx.Table("user").Set("gorm:query_option", "FOR UPDATE").Where("email=?", email).Count(&count2).Error
-
-
-	if err != nil || err1 != nil {
-		return false, fmt.Errorf("error querying MySQL: %s", err)
+	//err := tx.Table("user").Set("gorm:query_option", "FOR UPDATE ").Where("username=?", username).Count(&count1).Error
+	//err1 := tx.Table("user").Set("gorm:query_option", "FOR UPDATE").Where("email=?", email).Count(&count2).Error
+	list := []model.User{}
+	err := tx.Model(&model.User{}).Set("gorm:query_option", "LOCK IN SHARE MODE").Where("username = ?", username).Limit(1).Find(&list).Error
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error querying MySQL: %s", err)
 
 	}
+	if len(list) != 0 {
+		tx.Rollback()
+		return fmt.Errorf("error querying MySQL: %s", err)
+	}
 
-
-	tx.Table("user").Create(model.User{
+	err = tx.Model(&model.User{}).Create(model.User{
 		Username: username,
 		Password: password,
 		Email:    email,
-	})
-	if count1 > 0 {
-		return false, fmt.Errorf("Username  already exists")
-	}
-	if count2 > 0 {
-		return false, fmt.Errorf("email already exists")
-	}
-	m.db.Table("user").Create(model.User{
-
-		Username: username,
-		Password: password,
-		Email:    email,
-	})
-
-	if count1 > 0 {
+	}).Error
+	if err != nil {
 		tx.Rollback()
-		return false, fmt.Errorf("Username  already exists")
-	} else if count2 > 0 {
-		tx.Rollback()
-		return false, fmt.Errorf("email already exists")
-
-	} else {
-		tx.Commit()
-		return true, nil
+		return fmt.Errorf("error querying MySQL: %s", err)
 	}
-
-
-
-
+	tx.Commit()
+	return nil
 }

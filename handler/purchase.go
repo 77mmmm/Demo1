@@ -1,10 +1,11 @@
 package handler
 
 import (
-	"awesomeProject/lib/ctx"
-	"awesomeProject/logic/commodity"
 	"fmt"
 	"net/http"
+
+	"awesomeProject/lib/ctx"
+	"awesomeProject/logic/commodity"
 )
 
 func Purchase(w http.ResponseWriter, r *http.Request) {

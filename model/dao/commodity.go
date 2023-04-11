@@ -1,9 +1,10 @@
 package dao
 
 import (
+	"fmt"
+
 	"awesomeProject/lib/mysql"
 	"awesomeProject/model"
-	"fmt"
 )
 
 func NewCommodityRepositoryImpl() *CommodityRepositoryImpl {

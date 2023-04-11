@@ -1,8 +1,9 @@
 package dao
 
 import (
-	"awesomeProject/lib/mysql"
 	"fmt"
+
+	"awesomeProject/lib/mysql"
 )
 
 // 后续加入redis
@@ -27,10 +28,10 @@ func (m *Repository) GetUser(username string) (string, error) {
 	return password, nil
 }
 func (m *Repository) SelectUser(username string, password string, email string) (bool, error) {
-	Bool, err := m.db.SelectUser(username, password, email)
+	err := m.db.SelectUser(username, password, email)
 	if err != nil {
 		return false, fmt.Errorf("error querying MySQL: %s", err)
 	}
 
-	return Bool, nil
+	return true, nil
 }

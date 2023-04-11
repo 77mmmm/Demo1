@@ -1,7 +1,6 @@
 package main
 
 import (
-	"awesomeProject/handler"
 	"bytes"
 	"fmt"
 	"net/http"
@@ -9,6 +8,8 @@ import (
 	"net/url"
 	"sync"
 	"testing"
+
+	"awesomeProject/handler"
 )
 
 func TestMyHandler(t *testing.T) {
@@ -24,8 +25,8 @@ func TestMyHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	var wg sync.WaitGroup
-	wg.Add(5)
-	for i := 0; i <= 4; i++ {
+	wg.Add(11)
+	for i := 0; i <= 10; i++ {
 		go func() {
 			handler := http.HandlerFunc(handler.Register)
 			handler.ServeHTTP(rr, req)

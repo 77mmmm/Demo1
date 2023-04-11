@@ -24,5 +24,6 @@ func InitDb() (*gorm.DB, error) {
 		return nil, err
 	}
 	db.AutoMigrate(&model.User{})
+	db.SingularTable(true)
 	return db, nil
 }

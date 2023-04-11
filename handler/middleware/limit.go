@@ -1,17 +1,20 @@
 package middleware
 
 import (
-	"golang.org/x/time/rate"
 	"net/http"
-	"time"
+
+	"golang.org/x/time/rate"
 )
 
-// 允许10个用户进入
-var limiter = rate.NewLimiter(rate.Every(time.Millisecond*31), 10)
+type Limiter struct {
+	Lm *rate.Limiter
+}
 
-func Limit(next http.Handler) http.Handler {
+// !!!!!limiter   多长时间允许多少个进入。还是只能允许10个用户进入   允许10个用户进入
+
+func (limiter *Limiter) Limit(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if limiter.Allow() == false {
+		if limiter.Lm.Allow() == false {
 			http.Error(w, http.StatusText(429), http.StatusTooManyRequests)
 			return
 		}
